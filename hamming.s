@@ -1,12 +1,6 @@
-@ Task: compute the Hamming distance on 2 words
-@       Given:  2 integer arrays xs and ys, where len(xs)==len(ys)
-@       Return: the number of positions where the two arrays differ
-@               i.e. | { i | i <- 0..len(xs), xs[i]!=ys[i] } |
+
 	
-@ Follows ARM subroutine calling conventions
-	
-	@ Entry point (Callable from C):
- .text
+.text
 .align 2
 .global hamming
 .type hamming, %function
@@ -50,7 +44,5 @@ end:
 .equ VAL1, 1
 .equ VAL2, 2	
 
-@ Indicate to the linker that the code in this file does not need the stack
-@ to be executable. (Recent versions of GNU ld warn if this is not present.)
 .section .note.GNU-stack,"",%progbits
 	
