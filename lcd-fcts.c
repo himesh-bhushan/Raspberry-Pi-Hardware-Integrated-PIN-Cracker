@@ -1,8 +1,8 @@
 #define _DEFAULT_SOURCE
 #include <unistd.h>
 
-#include "cw2-config.h"
-#include "cw2-aux.h"
+#include "config.h"
+#include "aux.h"
 #include "lcd-fcts.h"
 #include "lcd-binary.h"
 
@@ -34,11 +34,6 @@ static void lcd_send(volatile uint32_t *gpio, int value) {
 void lcd_command(volatile uint32_t *gpio, int command) {
     digital_write(gpio, LCD_PIN_RS, 0);
     lcd_send(gpio, command);
-
-    // As we can only write to the LCD, we can't poll the status register to
-    // see when the command is finished, so we have to delay instead. Most
-    // commands take 37 us to complete, so the 50 us delay above is
-    // sufficient, except LCD_CMD_HOME which takes 1.52 ms.
     if (command == LCD_HOME) {
         usleep(2000);
     }
@@ -84,12 +79,7 @@ void lcd_init(volatile uint32_t *gpio) {
     pin_mode(gpio, LCD_PIN_D6, OUTPUT);
     pin_mode(gpio, LCD_PIN_D7, OUTPUT);
 
-    // This implements the 4-bit initialisation sequence from the HD44780U
-    // datasheet, figure 24. This will work regardless of the initial state
-    // of the LCD; we don't know if it's currently in 4-bit or 8-bit mode.
 
-    // Ensure E is low for a while to start with, and the LCD
-    // has had time to start up
     digital_write(gpio, LCD_PIN_E, 0);
     usleep(20000);
 
