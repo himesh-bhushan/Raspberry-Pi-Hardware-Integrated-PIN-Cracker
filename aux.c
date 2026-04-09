@@ -1,7 +1,3 @@
-/*
-  A set of general-purpose, auxiliary functions, to be used in cw2.c file of the application.
-*/
-
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,19 +5,10 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <time.h>
+#include "aux.h"
 
-#include "cw2-aux.h"
-
-/* ------------------------------------------------------- */
-/* aux fcts for timers and signals */
-
-/*
-  Delay, i.e. do nothing, for @howlong@ micro-seconds. Using either hardware clock or system call.
- */
 void delay(unsigned long howLong) {
-      // static uint64_t startT, stopT, diffT;  // used for debugging only
       struct timespec sleeper, dummy ;
-
       sleeper.tv_sec  = (time_t)(howLong / 1000000L) ;
       sleeper.tv_nsec = (long)(howLong % 1000000L) * 1000L ;
 
@@ -39,28 +26,6 @@ void delay(unsigned long howLong) {
       nanosleep (&sleeper, &dummy) ;
 #endif
 }
-
-/* --------------------------------------------------------------------------- */
-/* Miscellaneous aux fcts */
-
-/*
- * delayMicroseconds:
- *	This is somewhat intersting. It seems that on the Pi, a single call
- *	to nanosleep takes some 80 to 130 microseconds anyway, so while
- *	obeying the standards (may take longer), it's not always what we
- *	want!
- *
- *	So what I'll do now is if the delay is less than 100uS we'll do it
- *	in a hard loop, watching a built-in counter on the ARM chip. This is
- *	somewhat sub-optimal in that it uses 100% CPU, something not an issue
- *	in a microcontroller, but under a multi-tasking, multi-user OS, it's
- *	wastefull, however we've no real choice )-:
- *
- *      Plan B: It seems all might not be well with that plan, so changing it
- *      to use gettimeofday () and poll on that instead...
- *********************************************************************************
- */
-
 
 void delayMicroseconds (unsigned int howLong)
 {
@@ -82,19 +47,11 @@ void delayMicroseconds (unsigned int howLong)
   }
 }
 
-/*
-  waitForEnter: wait for a press of the enter key from the keyboard; useful for testing.
-*/
-
 void waitForEnter (void)
 {
   printf ("Press ENTER to continue: ") ;
   (void)fgetc (stdin) ;
 }
-
-/*
-  failure: terminate execution with an error message; using var-args list; useful for error handling.
-*/
 
 int failure (bool fatal, const char *message, ...)
 {
@@ -113,4 +70,3 @@ int failure (bool fatal, const char *message, ...)
 
   return 0 ;
 }
-
