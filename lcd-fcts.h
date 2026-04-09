@@ -1,8 +1,7 @@
 #ifndef LCD_H
 #define LCD_H
 
-// GPIO pins used by the LCD now in cw2-config.h
-
+// GPIO pins used by the LCD
 // Commands
 #define LCD_CLEAR 0x01
 #define LCD_HOME 0x02
