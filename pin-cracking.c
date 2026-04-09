@@ -1,52 +1,3 @@
-/* 
- *
- * F28HS CW2
- * pinCrack: button input of a sequence of numbers followed by cracking a secret PIN
- * Uses interval timers for the timed_out/delay function
-
- * Compile:    	      make cw2
- * Run (e.g):         sudo ./cw2 -d -e -s 112
- * Run (unit-test):   sudo ./cw2 -u -s 112 -r 121
-
- ***********************************************************************
- * The development of this code was heavily based on the wiringPi library by Gordon Henderson.
- * This instance of the code, however, does not depend directly on the wiringPi library any more.
- *
- * wiringPi:
- *	Arduino look-a-like Wiring library for the Raspberry Pi
- *	Copyright (c) 2012-2015 Gordon Henderson
- *	Additional code for pwmSetClock by Chris Hall <chris@kchall.plus.com>
- *
- *	Thanks to code samples from Gert Jan van Loo and the
- *	BCM2835 ARM Peripherals manual, however it's missing
- *	the clock section /grr/mutter/
- ***********************************************************************
- * This file is part of wiringPi:
- *	https://projects.drogon.net/raspberry-pi/wiringpi/
- *
- *    wiringPi is free software: you can redistribute it and/or modify
- *    it under the terms of the GNU Lesser General Public License as
- *    published by the Free Software Foundation, either version 3 of the
- *    License, or (at your option) any later version.
- *
- *    wiringPi is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *    GNU Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with wiringPi.
- *    If not, see <http://www.gnu.org/licenses/>.
- ***********************************************************************
- */
-
-/* --------------------------------------------------------------------------- */
-/* Config settings */
-
-// NOTE: most config settings are in cw2-config.h
-
-/* --------------------------------------------------------------------------- */
-/* Imports */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,13 +14,10 @@
 #include <math.h>
 #include <assert.h>
 
-#include "cw2-config.h"
-#include "cw2-aux.h"
+#include "config.h"
+#include "aux.h"
 #include "lcd-binary.h"
 #include "lcd-fcts.h"
-
-/* --------------------------------------------------------------------------- */
-/* Constants (see cw2-config.h for default values) */
 
 // number of possible values at each position in the sequence
 static  int digits = DIGITS;
@@ -89,16 +37,7 @@ volatile uint32_t *gpio ;
 // flag to be set in signal handler for interval times
 static int timed_out = 0;
 
-/* --------------------------------------------------------------------------- */
-/* external prototypes */
-
-/* *****************************************************************************
-   HINT: use this CPP flag to select between a C and an Asm implementation 
-         of the Hamming distance.
- ***************************************************************************** */
-
 #ifdef HAMM_ASM
-// prototype for the Assembler fct; only needed for an Asm implementation
 int hamming(const int *x, const int *y, int seqlen);
 #endif
 
@@ -233,28 +172,10 @@ void blinkN(volatile uint32_t *gpio, int led, int c) {
         usleep(250000);          // 0.25s
     }
 }
-/* ----------------------------------------------------------------------------- */
+
 /* Helper fcts for this app                                                      */
-
-/*
-  HINT: the libc function powl(x, n) computes @x@ to the power of @n@
-        and is a useful function for Task~5, using arbitrary sequence length.
-*/
-
-/* ***************************************************************************** */
-/* NOTE: CPP flag should select Assembler version of Hamming distance            */
-/*       Set the flag in the Makefile using -DHAMM_ASM                           */
-/* If the flag is NOT set (as below) a C version of the Hamming distance should be selected */
-/* ***************************************************************************** */
-
 #ifndef HAMM_ASM
-/*
-  Computer the Hamming distance between to arrays of ints.
-  OPTIONAL: this is a C implementation of Hamming distance; this version is optional
-  HINT: implement a C version and test it, before implementing an ARM Assembler version
-  NOTE: if you use a C implementation, you may need to modify the Makefile and remove 'hamming.o' from the list of linked files.
-  The final version of the code should use the Assembler version in file hamming.s
-*/
+
 /* Computer the Hamming distance between to arrays of ints. */
 int hamming(const int *x, const int *y, int seqlen) {
     int distance = 0;
@@ -265,9 +186,8 @@ int hamming(const int *x, const int *y, int seqlen) {
 }
 #endif // !HAMM_ASM
 
-/*
-  Show the Hamming distance (of @seq1@ and @seq2@) in @code@ on the terminal.
-*/
+/* Show the Hamming distance (of @seq1@ and @seq2@) in @code@ on the terminal. */
+
 void showHamm(int code, const int *seq1, const int *seq2) {
     printf("Sequence 1: ");
     for(int i=0; i<seqlen; i++) printf("%d ", seq1[i]);
@@ -276,11 +196,6 @@ void showHamm(int code, const int *seq1, const int *seq2) {
     printf("\nHamming Distance: %d\n", code);
 }
 
-/* 
-   OPTIONAL: implement an increment in a array of arbitrary length in @seq@
-             by one, assuming the max value per element is @digits@.
-  HINT: this function is useful for Task 3: arbitrary length of sequence.	     
-*/
 static inline
 void incseq(int *seq, int seqlen, int digits) {
     for (int i = seqlen - 1; i >= 0; i--) {
@@ -291,19 +206,6 @@ void incseq(int *seq, int seqlen, int digits) {
         seq[i] = 1;
     }
 }
-/* --------------------------------------------------------------------------- */
-
-/* 
-   @submit_PIN@: Submit a PIN for checking against a secret pin.  EXPENSIVE!
-   @attSeq@ is the attempted sequence, submitted for testing against the secret pin.
-   @seqlen@ is the length of the sequence.
-   @submitDelay@ is the delay in processing the sequence (can be changed with -S cmdline option).
-   NOTE: the secret sequence is in the global variable @theSeq@ which is not an argument
-         because it should be hidden to the caller.
-   The function tests @attSeq@ against the secret sequence @theSeq@, by computing the Hamming distance.
-   If the Hamming distance is 0, both sequences are equal, and the sequence has been found (in @attSeq@)
-   The return value is a boolean value whether the sequence has been found.
-*/
 
 int submit_PIN(const int *attSeq, int seqlen, int submitDelay) {
   int found = 0;
@@ -351,8 +253,6 @@ int main(int argc, char **argv){
     // -------------------------------------------------------
     // process command-line arguments
     
-    // see: man 3 getopt for docu and an example of command line parsing
-    { // see the CW spec for the intended meaning of these options
         int opt;
         while ((opt = getopt(argc, argv, "hvdeluS:s:r:m:n:")) != -1) {
             switch (opt) {
@@ -402,7 +302,6 @@ int main(int argc, char **argv){
     if (help) {
         fprintf(stderr, "pinCrack program, running on a Raspberry Pi, with connected LED, button and LCD display\n");
         fprintf(stderr, "Use the button for input of numbers. The LCD display will show the matches with the secret sequence.\n");
-        fprintf(stderr, "For full specification of the program see: https://www.macs.hw.ac.uk/~hwloidl/Courses/F28HS/F28HS_CW2_2026.pdf\n");
         fprintf(stderr, "Usage: %s [-h] [-v] [-d] [-e] [-u <seq1> <seq2>] [-s <secret seq>] [-r <reference seq>]  \n", argv[0]);
         exit(EXIT_SUCCESS);
     }
@@ -417,16 +316,7 @@ int main(int argc, char **argv){
         if (opt_s)  printf("Secret sequence set to %d\n", opt_s);
         if (opt_r)  printf("Reference sequence set to %d\n", opt_r);
     }
-    
-    if (verbose) {
-        printf("Hint: remember to compute the Hamming distance in each iteration and assign it to variable code; current (unused) value: %d\n", code);
-        printf("Code style requirement: collect the values of the input sequence in the variable input_pin; current (unused) value: %p\n", input_pin);
-    }
-    
-    /* ***************************************************************************** */
-    /* Initialise the sequences that you need here, before using them  */
-    /* ***************************************************************************** */
-    
+
     //Allocate memory for the user input PIN
     input_pin = calloc(seqlen, sizeof(int));
     if (input_pin == NULL) {
@@ -475,7 +365,6 @@ int main(int argc, char **argv){
         }
     }
     
-    /* --------------------------------------------------------------------------- */
     /* Configuration of the LCD display */
     int bits, rows, cols ;
     
@@ -487,26 +376,18 @@ int main(int argc, char **argv){
     printf ("Raspberry Pi configuration: red LED: %d; green LED: %d; button: %d\n", red_led, green_led, button) ;
     printf ("Raspberry Pi LCD driver for a %dx%d display (%d-bit wiring) \n", cols, rows, bits) ;
     
-    /* --------------------------------------------------------------------------- */
     /* Check for root priveleges (needed for controlling LEDs etc) */
-    
     if (geteuid () != 0) {
         fprintf (stderr, "setup: Must be root. (Did you forget sudo?)\n") ;
         exit(EXIT_FAILURE);
     }
     
-    /* --------------------------------------------------------------------------- */
     /* constants for RPi2/3. NOTE: RPi4 needs a different base address */
-    // -----------------------------------------------------------------------------
     // RPi2/3
     //gpiobase = 0x3F200000 ;
     // RPi4
     gpiobase = 0xFE200000 ;
-    
-    // -----------------------------------------------------------------------------
-    // memory mapping
-    // Open the master /dev/memory device
-    
+        
     if ((fd = open ("/dev/mem", O_RDWR | O_SYNC | O_CLOEXEC) ) < 0)
         return failure (false, "setup: Unable to open /dev/mem: %s\n", strerror (errno)) ;
     
@@ -515,29 +396,16 @@ int main(int argc, char **argv){
     if ((int32_t)gpio == -1)
         return failure (false, "setup: mmap (GPIO) failed: %s\n", strerror (errno)) ;
     
-    // -----------------------------------------------------------------------------
     // Setting mode of pins
     pin_mode(gpio, green_led, OUTPUT);
     pin_mode(gpio, red_led, OUTPUT);
     pin_mode(gpio, button, INPUT);
     
-    // -----------------------------------------------------------------------------
-    // Initialise the LCD display
-    
+    // Initialise the LCD display    
     lcd_init(gpio);
     
     
-    if (opt_l) { // TESTING only: show some text on the LCD display to demonstrate it's working in principle
-        /* ***************************************************************************** */
-        /* OPTIONAL CODE to show that the LCD display is working */
-        /* ***************************************************************************** */
-        
-        exit(2);
-    }
-    
-    // -----------------------------------------------------------------------------
     // App initialisation
-    
     /* Initialise the secret sequence */
     if (!opt_s)  initSeq(seqlen, digits);
     
@@ -547,9 +415,7 @@ int main(int argc, char **argv){
         showSeq(theSeq,seqlen);
     }
     
-    // -----------------------------------------------------------------------------
-    // Unit testing: check the Hamming distance between two given sequences
-    
+    // Unit testing: check the Hamming distance between two given sequences    
     if (unit_test) { // unit test: just print the Hamming distance
         
         if (!opt_r) {
@@ -564,9 +430,7 @@ int main(int argc, char **argv){
         showHamm(refCode, theSeq, refSeq);
         exit(EXIT_SUCCESS);
     }
-    
-    // -----------------------------------------------------------------------------
-    
+        
     /* Print Greetings Message on LCD display */
     char surname[256];
     char display_surname[6]={0};
@@ -605,17 +469,9 @@ int main(int argc, char **argv){
     while ((flush_char = getchar()) != '\n' && flush_char != EOF);
     printf("\nPress ENTER to begin Task 2\n");
     
-    /* OPTIONAL: wait for ENTER key before continuing */
-    waitForEnter () ; // -------------------------------------------------------
+    waitForEnter () ; 
     
-    /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
-    /* Main part of the application  */
-    
-    // -------------------------------------------------------
     // PHASE 1: sequence input
-    
-    
-    // ...........................................................................
     // Iterate over all elements of the sequence
     
     for (int i = 0; i < seqlen; i++) {
@@ -670,7 +526,6 @@ int main(int argc, char **argv){
     showSeq(input_pin, seqlen);
     
     
-    // -------------------------------------------------------
     // PHASE 2: Main Task: full search
     
     printf("--------------------- \n");
