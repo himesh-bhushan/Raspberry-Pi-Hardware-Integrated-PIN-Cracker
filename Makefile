@@ -6,13 +6,13 @@ CFLAGS = -g -Wall -std=gnu99  -DHAMM_ASM -DASM
 # enable Assembler interface to low-level functions:
 # -DASM
 
-OBJS = cw2.o lcd-fcts.o cw2-aux.o lcd-binary.o hamming.o
+OBJS = pin-crackin.o lcd-fcts.o aux.o lcd-binary.o hamming.o
 LIBS = -lm
 
-all: cw2
+all: pin-cracking
 
 # Link the object files to give the program
-cw2: $(OBJS)
+pin-cracking: $(OBJS)
 	$(CC) $(CFLAGS) -o cw2 $(OBJS) $(LIBS)
 
 # Compile a C source file to an object file
@@ -26,10 +26,10 @@ cw2: $(OBJS)
 
 # Header file dependencies
 
-cw2.o: cw2-config.h cw2-aux.h lcd-binary.h lcd-fcts.h
-cw2-aux.o: cw2-aux.h
-lcd-fcts.o: cw2-config.h lcd-fcts.h lcd-binary.h
+pin-cracking.o: config.h aux.h lcd-binary.h lcd-fcts.h
+aux.o: aux.h
+lcd-fcts.o: config.h lcd-fcts.h lcd-binary.h
 lcd-binary.o: lcd-binary.h
 
 clean:
-	rm -f cw2 $(OBJS)
+	rm -f pin-cracking $(OBJS)
