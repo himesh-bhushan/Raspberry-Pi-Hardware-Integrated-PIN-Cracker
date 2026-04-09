@@ -1,83 +1,115 @@
-# f28hs-2025-26-cwk2-sys
+# Raspberry Pi Hardware-Integrated PIN Cracker
 
-Coursework 2 in F28HS "Hardware-Software Interface" on Systems Programming in C and ARM Assembler
+## Overview
+This repository contains a hardware-software integration project built for the Raspberry Pi. It combines a central C application (`pin-cracking.c`) with ARM Assembly optimizations (`hamming.s`) to interact with GPIO components (LEDs, a push-button, and an LCD display) via direct memory mapping. The core objective is to process physical user inputs and execute both guided and brute-force PIN cracking algorithms using Hamming distance evaluations.
 
-The [CW specification is here](https://www.macs.hw.ac.uk/~hwloidl/Courses/F28HS/F28HS_CW2_2026.pdf)
+## Hardware Requirements
+To run this project, you will need a Raspberry Pi (configured for RPi 4 base addresses in the code, but adaptable to RPi 2/3) and the following external components:
+* 1x Green LED
+* 1x Red LED
+* 1x Push Button
+* 1x 16x2 LCD Display (using 4-bit wiring)
 
-This is a **pair coursework**.
+### Wiring Diagram
+![Fritzing Wiring Diagram](fritz_diagram.png)
 
-Links:
-- You can use any machine with an installation of the `gcc` C compiler for running the C code of the search logic
-- Template for the C program: [cw2.c](cw2.c)
-- Template for the ARM Assembler program: [hamming.s](hamming.s)
+*(Reference the diagram above for specific wiring and layout. The precise GPIO pin mappings are defined in the code.)*
 
-## Contents
+## Project Structure
+* **`pin-cracking.c`**: The main application controller handling CLI arguments, GPIO setup, sequence tracking, and the main cracking logic.
+* **`hamming.s`**: ARM Assembly implementation for highly efficient Hamming distance calculations between sequences.
+* **`lcd-fcts.c` / `lcd-fcts.h` / `lcd-binary.c` / `lcd-binary.h`**: Modularized drivers and helper functions for initializing and pushing text to the 16x2 LCD.
+* **`aux.c` / `aux.h` & `config.h` & `gpio.h`**: Configuration and auxiliary helpers for timekeeping, setup, and GPIO macros.
+* **`Makefile`**: Build script to compile the C and Assembly files into the executable.
 
-This folder contains the several template files for CW2. You will need to **modify and complete** the following files:
-- `cw2.c`         ... the main C program for the CW implementation
-- `hamming.s`     ... the Hamming function, to be implemented in ARM Assembler
-- `lcd-binary.c`  ... the low-level code for hardware interaction with LED, button, and LCD;
-                      this should be implemented in inline Assembler; 
+## Features & Execution Tasks
+The program operates in several distinct phases:
+1. **Task 1 (Greeting):** Prompts the user for their surname in the terminal. The Green LED blinks for vowels and the Red LED blinks for consonants, followed by displaying the first 5 characters on the LCD.
+2. **Task 2 (Sequence Input):** Allows the user to input a PIN using physical button presses. The Green LED confirms individual presses, while the Red LED signals the end of a digit's input phase.
+3. **Task 4 (Guided Search):** Calculates the initial Hamming distance between the input guess and the secret PIN, displaying the results on the LCD. It then attempts to find the PIN by iterating through combinations that match that specific distance.
+4. **Task 5 (Brute Force):** An exhaustive search mode that iterates through all possible sequence combinations (acting as an "odometer") until the secret sequence is cracked, outputting runtime and attempt statistics.
 
-You should use the following C files (and the corresponding header files) as is:
-- `lcd-fcts.c`    ... the software stack for using the LCD display
-- `cw2-aux.c`     ... several auxiliary functions used in `cw2.c`
+## Building and Running
 
-Note that the default settings for constants such as sequence length etc and wiring can be found in the header file:
-- `cw2-config.h`  ... constants and wiring info
+### Compilation
+##
+Because the repository includes a `Makefile`, you can compile the project simply by running:
+```bash
+make
 
-## Gitlab usage
 
-**Fork** and **Clone** this gitlab repo to get started on the coursework.
+ere is the updated README.md file, incorporating the execution details exactly as you requested and embedding the Fritzing diagram into the markdown structure.
 
-Complete the functions in `cw2.c` and in `lcd-binary.c`. Initially, you can implement these as C
-functions. However, for the final implementation, the low-level functions for controlling LED, button, and
-LCD display should be implemented in inline Assembler (in `lcd-binary.c`). Note that the **Hamming function**,
-for calculating the Hamming distance (see CW spec) also needs to be implemented in ARM Assembler.
-The file `hamming.s` contains a template for this Assembler code.
+Markdown
+# Raspberry Pi Hardware-Integrated PIN Cracker
 
-**Push** to the repo and ask questions in the comments box to get help.
+## Overview
+This repository contains a hardware-software integration project built for the Raspberry Pi. It combines a central C application (`pin-cracking.c`) with ARM Assembly optimizations (`hamming.s`) to interact with GPIO components (LEDs, a push-button, and an LCD display) via direct memory mapping. The core objective is to process physical user inputs and execute both guided and brute-force PIN cracking algorithms using Hamming distance evaluations.
 
-## Building and running the application
+## Hardware Requirements
+To run this project, you will need a Raspberry Pi (configured for RPi 4 base addresses in the code, but adaptable to RPi 2/3) and the following external components:
+* 1x Green LED
+* 1x Red LED
+* 1x Push Button
+* 1x 16x2 LCD Display (using 4-bit wiring)
 
-You can build the main C program (in `cw2.c`) by typing
-> make all
+### Wiring Diagram
+![Fritzing Wiring Diagram](fritz_diagram.png)
 
-and run the CW implementation like this
-> sudo ./cw2 
+*(Reference the diagram above for specific wiring and layout. The precise GPIO pin mappings are defined in the code.)*
 
-a typical test configuration (for seqlen 3 and 3 digits, exhaustive serach, secret sequence 123) is run like this:
-> sudo ./cw2 -d -e -n 3 -m 3 -s 123
+## Project Structure
+* **`pin-cracking.c`**: The main application controller handling CLI arguments, GPIO setup, sequence tracking, and the main cracking logic.
+* **`hamming.s`**: ARM Assembly implementation for highly efficient Hamming distance calculations between sequences.
+* **`lcd-fcts.c` / `lcd-fcts.h` / `lcd-binary.c` / `lcd-binary.h`**: Modularized drivers and helper functions for initializing and pushing text to the 16x2 LCD.
+* **`aux.c` / `aux.h` & `config.h` & `gpio.h`**: Configuration and auxiliary helpers for timekeeping, setup, and GPIO macros.
+* **`Makefile`**: Build script to compile the C and Assembly files into the executable.
 
-For the Assembler part, you need to edit the `hamming.s` file, compile and test this version on the Raspberry Pi.
+## Features & Execution Tasks
+The program operates in several distinct phases:
+1. **Task 1 (Greeting):** Prompts the user for their surname in the terminal. The Green LED blinks for vowels and the Red LED blinks for consonants, followed by displaying the first 5 characters on the LCD.
+2. **Task 2 (Sequence Input):** Allows the user to input a PIN using physical button presses. The Green LED confirms individual presses, while the Red LED signals the end of a digit's input phase.
+3. **Task 4 (Guided Search):** Calculates the initial Hamming distance between the input guess and the secret PIN, displaying the results on the LCD. It then attempts to find the PIN by iterating through combinations that match that specific distance.
+4. **Task 5 (Brute Force):** An exhaustive search mode that iterates through all possible sequence combinations (acting as an "odometer") until the secret sequence is cracked, outputting runtime and attempt statistics.
 
-After having tested the components separately, integrate both so that the C program (in `cw2.c`)
-calls the ARM Assembler code (in `hamming.s`) for the matching function.
-For controlling the external devices of LED, LCD and button use inline Assembler code, as discussed in
-the matching lecture in the course.
+## Building and Running
 
-The final version of the code should be pushed to this repo, and also submitted through Canvas, together with the report and video.
+### Compilation
+Because the repository includes a `Makefile`, you can compile the project simply by running:
+```bash
+make
+Execution
 
-The general format for the command line is as follows (see CW spec; this is supported by the template code in `cw2.c` for processing command line options):
-```
- ./cw2 [-d] [-v] [-e] [-S <delay>] [-n <seqlen>] [-m <maxval>]
-       [-u] [-s <secret sequence>] [-r <reference sequence>]
-```
+Important: Because this program uses direct memory-mapped I/O (/dev/mem) to control the GPIO pins, it must be run with root privileges.
 
-## Wiring
+Bash
+sudo ./pin-cracking [OPTIONS]
+Command-Line Arguments
 
-A **green LED**, as output device, should be connected to the RPi2 using **GPIO pin 26.**
+The program accepts several flags to modify its behavior:
 
-A **red LED**, as output device, should be connected to the RPi2 using **GPIO pin 5.**
+-h: Display help and usage information.
 
-A **Button**, as input device, should be connected to the RPi2 using **GPIO pin 19.**
+-v: Enable verbose output (prints active settings).
 
-An **LCD display**, with a potentiometer to control contrast, should be wired to the
-Raspberry by as shown in the Fritzing diagram below.
+-d: Enable debug mode (reveals the secret sequence in the terminal).
 
-You will need resistors to control the current to the LED and from the Button. You
-will also need a potentiometer to control the contrast of the LCD display.
+-e: Run the Exhaustive/Brute Force Search (Task 5).
 
-The Fritzing diagram below visualises this wiring. 
+-m <maxval>: Set the maximum digit value (number of possible values per position).
 
-![Fritzing Diagram](fritz_CW2_2025_bb.png "Fritzing Diagram with LED and Button")
+-n <seqlen>: Set the length of the PIN sequence.
+
+-u: Run a unit test (requires -s and -r).
+
+-s <secret seq>: Manually set the secret sequence to crack.
+
+-r <reference seq>: Set a reference sequence (for testing).
+
+Example
+
+To run an exhaustive search with a sequence length of 4 and a specific secret PIN of 1234:
+
+Bash
+sudo ./pin-cracking -e -n 4 -s 1234
+
