@@ -1,6 +1,5 @@
-#ifndef CW2_AUX_H
-#define CW2_AUX_H
-
+#ifndef AUX_H
+#define AUX_H
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -12,7 +11,7 @@
 #define	LOW			 0
 #define	HIGH			 1
 
-// Constants needed  in cw2.c for memory mapping
+// Constants needed for memory mapping
 #define	PAGE_SIZE		(4*1024)
 #define	BLOCK_SIZE		(4*1024)
 
